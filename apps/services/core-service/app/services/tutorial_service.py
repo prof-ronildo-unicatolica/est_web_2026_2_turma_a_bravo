@@ -13,7 +13,7 @@ class TutorialService:
         stacks = self.repository.get_stacks_with_tecnologias()
 
         equipe_info = {
-            "equipe": "Alpha",
+            "equipe": "Bravo",
             "ano": 2026,
             "semestre": 2,
             "professor": None,
