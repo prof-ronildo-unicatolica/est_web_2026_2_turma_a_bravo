@@ -10,7 +10,7 @@ export default function ImageAndCarousel() {
             <div className="card-body d-flex flex-column justify-content-between">
               <p className="text-muted small">Conheça alguns dos hotéis e destinos disponíveis em nossa rede.</p>
               <img 
-                src="https://picsum.photos/600/300?random=1" 
+                src="/images/hotel-recepcao.png" 
                 alt="Rede Hoteleira" 
                 className="img-fluid rounded border shadow-sm mb-3"
               />
