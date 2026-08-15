@@ -36,7 +36,7 @@ export default function ImageAndCarousel() {
                 <div className="carousel-inner" style={{ height: '220px' }}>
                   <div className="carousel-item active h-100">
                     <img 
-                      src="https://picsum.photos/600/300?random=2" 
+                      src="/images/hotel-executivo.jpg" 
                       className="d-block w-100 h-100 rounded" 
                       alt="Hotel Executivo" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
@@ -48,7 +48,7 @@ export default function ImageAndCarousel() {
                   </div>
                   <div className="carousel-item h-100">
                     <img 
-                      src="https://picsum.photos/600/300?random=3" 
+                      src="/images/hotel-praia.jpg" 
                       className="d-block w-100 h-100 rounded" 
                       alt="Hotel Praia" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
@@ -60,7 +60,7 @@ export default function ImageAndCarousel() {
                   </div>
                   <div className="carousel-item h-100">
                     <img 
-                      src="https://picsum.photos/600/300?random=4" 
+                      src="/images/hotel-serra.jpg" 
                       className="d-block w-100 h-100 rounded" 
                       alt="Hotel Serra" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
