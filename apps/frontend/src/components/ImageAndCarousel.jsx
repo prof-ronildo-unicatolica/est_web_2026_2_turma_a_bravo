@@ -1,20 +1,20 @@
 export default function ImageAndCarousel() {
   return (
     <section className="mb-5" id="image-carousel">
-      <h2 className="text-secondary mb-4 fs-4">4. Componentes Básicos: Carrossel e Imagem</h2>
+      <h2 className="text-secondary mb-4 fs-4">Hotéis em Destaque</h2>
       <div className="row g-4">
         {/* Image demonstration */}
         <div className="col-md-6">
           <div className="card h-100 shadow-sm border-0">
-            <div className="card-header bg-dark text-white fw-bold">Imagem Estática do Projeto</div>
+            <div className="card-header bg-dark text-white fw-bold">Conheça Nossa Rede Hoteleira</div>
             <div className="card-body d-flex flex-column justify-content-between">
-              <p className="text-muted small">Demonstração de renderização de imagem estática aleatória do Picsum Photos.</p>
+              <p className="text-muted small">Conheça alguns dos hotéis e destinos disponíveis em nossa rede.</p>
               <img 
                 src="https://picsum.photos/600/300?random=1" 
-                alt="Placeholder Aleatório" 
+                alt="Rede Hoteleira" 
                 className="img-fluid rounded border shadow-sm mb-3"
               />
-              <div className="small text-muted text-center">Imagem aleatória recarregada dinamicamente</div>
+              <div className="small text-muted text-center">Conheça algumas opções de hospedagem da nossa rede</div>
             </div>
           </div>
         </div>
@@ -22,9 +22,9 @@ export default function ImageAndCarousel() {
         {/* Carousel demonstration */}
         <div className="col-md-6">
           <div className="card h-100 shadow-sm border-0">
-            <div className="card-header bg-dark text-white fw-bold">Componente Carrossel (Slideshow)</div>
+            <div className="card-header bg-dark text-white fw-bold">Destaques da Rede</div>
             <div className="card-body d-flex flex-column justify-content-between">
-              <p className="text-muted small">Componente de carrossel com fotos aleatórias e vídeo nativo do Bootstrap 5.</p>
+              <p className="text-muted small">Confira hotéis e destinos em destaque para sua próxima hospedagem.</p>
               
               <div id="tutorialCarousel" className="carousel slide border rounded shadow-sm bg-light" data-bs-ride="carousel">
                 <div className="carousel-indicators">
@@ -38,36 +38,36 @@ export default function ImageAndCarousel() {
                     <img 
                       src="https://picsum.photos/600/300?random=2" 
                       className="d-block w-100 h-100 rounded" 
-                      alt="FastAPI Slide" 
+                      alt="Hotel Executivo" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
                     />
                     <div className="carousel-caption d-block">
-                      <h5>FastAPI</h5>
-                      <p className="small">APIs modernas e rápidas com Python.</p>
+                      <h5>Hotel Executivo</h5>
+                      <p className="small">Conforto e praticidade para viagens a trabalho.</p>
                     </div>
                   </div>
                   <div className="carousel-item h-100">
                     <img 
                       src="https://picsum.photos/600/300?random=3" 
                       className="d-block w-100 h-100 rounded" 
-                      alt="React Slide" 
+                      alt="Hotel Praia" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
                     />
                     <div className="carousel-caption d-block">
-                      <h5>React & Vite</h5>
-                      <p className="small">Interfaces rápidas e reativas.</p>
+                      <h5>Hotel Praia</h5>
+                      <p className="small">Hospedagem próxima ao mar para lazer e descanso.</p>
                     </div>
                   </div>
                   <div className="carousel-item h-100">
                     <img 
                       src="https://picsum.photos/600/300?random=4" 
                       className="d-block w-100 h-100 rounded" 
-                      alt="Database Slide" 
+                      alt="Hotel Serra" 
                       style={{ objectFit: 'cover', filter: 'brightness(55%)' }}
                     />
                     <div className="carousel-caption d-block">
-                      <h5>PostgreSQL & MongoDB</h5>
-                      <p className="small">Persistência relacional e NoSQL robusta.</p>
+                      <h5>Hotel Serra</h5>
+                      <p className="small">Tranquilidade e contato com a natureza.</p>
                     </div>
                   </div>
                   {/* Video slide */}
@@ -98,7 +98,7 @@ export default function ImageAndCarousel() {
                 </button>
               </div>
 
-              <div className="small text-muted text-center mt-3">Carrossel de Slides com controles interativos (incluindo vídeo)</div>
+              <div className="small text-muted text-center mt-3">Hotéis e destinos em destaque da nossa rede</div>
             </div>
           </div>
         </div>
