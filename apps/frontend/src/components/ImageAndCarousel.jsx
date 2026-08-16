@@ -79,12 +79,12 @@ export default function ImageAndCarousel() {
                       muted
                       preload="auto"
                     >
-                      <source src="https://www.w3schools.com/html/movie.mp4" type="video/mp4" />
+                      <source src="/videos/hotel-quarto.mp4" type="video/mp4"/>
                       Seu navegador não suporta a reprodução de vídeos.
                     </video>
                     <div className="carousel-caption d-block bg-dark bg-opacity-75 rounded px-2 py-1" style={{ bottom: '10px' }}>
-                      <h5 className="m-0 fs-6">Demonstração de Vídeo</h5>
-                      <p className="small m-0" style={{ fontSize: '0.75rem' }}>Mídia integrada no carrossel</p>
+                      <h5 className="m-0 fs-6">Quarto de Hotel</h5>
+                      <p className="small m-0" style={{ fontSize: '0.75rem' }}>Conforto e comodidade para uma boa hospedagem</p>
                     </div>
                   </div>
                 </div>
