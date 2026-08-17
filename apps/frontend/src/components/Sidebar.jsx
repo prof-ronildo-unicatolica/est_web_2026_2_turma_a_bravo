@@ -1,7 +1,7 @@
 export default function Sidebar() {
   return (
     <div className="bg-dark text-white p-3 rounded shadow-sm h-100">
-      <h5 className="text-primary fw-bold mb-4 border-bottom pb-2">Menu Tutorial</h5>
+      <h5 className="text-primary fw-bold mb-4 border-bottom pb-2">Menu da Rede Hoteleira</h5>
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item mb-2">
           <a href="#" className="nav-link text-white active" aria-current="page">
@@ -10,32 +10,32 @@ export default function Sidebar() {
         </li>
         <li className="nav-item mb-2">
           <a href="#professor-profile" className="nav-link text-white">
-            1. Perfil do Professor
+            1. Informações da Rede
           </a>
         </li>
         <li className="nav-item mb-2">
           <a href="#disciplinas-list" className="nav-link text-white">
-            2. Disciplinas e Techs
+            2. Serviços e Informações
           </a>
         </li>
         <li className="nav-item mb-2">
           <a href="#stacks-table" className="nav-link text-white">
-            3. Stacks e Linguagens
+            3. Tecnologias do Sistema
           </a>
         </li>
         <li className="nav-item mb-2">
           <a href="#image-carousel" className="nav-link text-white">
-            4. Carrossel e Imagem
+            4. Hotéis em Destaque
           </a>
         </li>
         <li className="nav-item mb-2">
           <a href="#video-section" className="nav-link text-white">
-            5. Player de Vídeo
+            5. Vídeo da Rede
           </a>
         </li>
         <li className="nav-item mb-2">
           <a href="#interactive-examples" className="nav-link text-white">
-            6. Exemplos Interativos
+            6. Recursos Interativos
           </a>
         </li>
       </ul>
