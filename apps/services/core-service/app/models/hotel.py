@@ -1,9 +1,9 @@
 import uuid
 
-from sqllchemy import Foreignkey, String
-from slqalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Foreignkey, String
+from sqlalchemy.orm import Mapped, mapped_column
 
-form app.models.tutorial import Base
+from app.models.tutorial import Base
 
 
 class Hotel(Base):
