@@ -2,11 +2,27 @@ import HotelProfile from '../components/HotelProfile'
 
 export default function Hoteis() {
   const hotelExemplo = {
-    nome: 'Hotel Praia Azul',
-    endereco: 'Fortaleza - CE',
-    estrelas: 4,
-    descricao: 'Hotel integrante da rede hoteleira.'
+  nome: 'Hotel Praia Azul',
+  endereco: 'Fortaleza - CE',
+  estrelas: 4,
+  descricao: 'Hotel integrante da rede hoteleira.',
+  localizacao: {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        properties: {
+          local: 'Hotel Praia Azul',
+          descricao: 'Fortaleza - CE'
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [-38.5267, -3.7319]
+        }
+      }
+    ]
   }
+}
 
   return (
     <div className="mb-4">
