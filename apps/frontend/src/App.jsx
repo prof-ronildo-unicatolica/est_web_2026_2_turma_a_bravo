@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import ProfessorProfile from './components/ProfessorProfile'
 import DisciplinasList from './components/DisciplinasList'
 import StacksTable from './components/StacksTable'
