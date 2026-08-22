@@ -1,4 +1,5 @@
 import { Routes, Route, Link } from 'react-router-dom'
+import Sidebar from './components/Sidebar'
 import Home from './pages/Home'
 import Hoteis from './pages/Hoteis'
 import Cidades from './pages/Cidades'
@@ -41,11 +42,19 @@ export default function App() {
       </nav>
 
       <div className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/hoteis" element={<Hoteis />} />
-          <Route path="/cidades" element={<Cidades />} />
-        </Routes>
+        <div className="row g-4">
+          <div className="col-md-3">
+            <Sidebar />
+          </div>
+
+          <div className="col-md-9">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/hoteis" element={<Hoteis />} />
+              <Route path="/cidades" element={<Cidades />} />
+            </Routes>
+          </div>
+        </div>
       
 
         <footer className="mt-5 py-4 border-top text-center text-muted">
