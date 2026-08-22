@@ -1,3 +1,5 @@
+import ImageAndCarousel from '../components/ImageAndCarousel'
+
 export default function Home() {
   return (
     <div className="mb-4">
@@ -5,6 +7,8 @@ export default function Home() {
       <p className="text-secondary">
         Sistema de Gestão de Hotelaria desenvolvido na disciplina de Estágio II.
       </p>
+
+      <ImageAndCarousel />
     </div>
   )
 }
