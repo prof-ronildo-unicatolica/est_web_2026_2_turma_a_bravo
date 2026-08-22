@@ -7,6 +7,9 @@ import ImageAndCarousel from './components/ImageAndCarousel'
 import Sidebar from './components/Sidebar'
 import VideoComponent from './components/VideoComponent'
 import InteractiveExamples from './components/InteractiveExamples'
+import Home from './pages/Home'
+import Hoteis from './pages/Hoteis'
+import Cidades from './pages/Cidades'
 
 export default function App() {
   const [data, setData] = useState(null)
@@ -70,9 +73,9 @@ export default function App() {
       {/* Cabecalho Principal */}
       <div className="container">
         <Routes>
-          <Route path="/" element={<h2>Página Inicial</h2>} />
-          <Route path="/hoteis" element={<h2>Hotéis</h2>} />
-          <Route path="/cidades" element={<h2>Cidades</h2>} />
+          <Route path="/" element={<Home />} />
+          <Route path="/hoteis" element={<Hoteis />} />
+          <Route path="/cidades" element={<Cidades />} />
         </Routes>
       
         <header className="mb-5 p-4 bg-white rounded shadow-sm">
