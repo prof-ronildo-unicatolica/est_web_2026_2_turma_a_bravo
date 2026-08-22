@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import ProfessorProfile from './components/ProfessorProfile'
 import DisciplinasList from './components/DisciplinasList'
 import StacksTable from './components/StacksTable'
@@ -46,10 +46,13 @@ export default function App() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav me-auto">
               <li className="nav-item">
-                <a className="nav-link active" href="#">Home</a>
+                <Link className="nav-link" to="/">Início</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#tutorial-components">Tutorial</a>
+                <Link className="nav-link" to="/hoteis">Hotéis</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/cidades">Cidades</Link>
               </li>
             </ul>
             <div className="d-flex align-items-center gap-2">
@@ -66,6 +69,12 @@ export default function App() {
 
       {/* Cabecalho Principal */}
       <div className="container">
+        <Routes>
+          <Route path="/" element={<h2>Página Inicial</h2>} />
+          <Route path="/hoteis" element={<h2>Hotéis</h2>} />
+          <Route path="/cidades" element={<h2>Cidades</h2>} />
+        </Routes>
+      
         <header className="mb-5 p-4 bg-white rounded shadow-sm">
           <div className="row align-items-center">
             <div className="col-md-8">
