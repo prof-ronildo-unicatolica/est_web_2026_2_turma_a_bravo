@@ -65,7 +65,7 @@ export default function MapComponent({ geojson }) {
   return (
     <div className="card shadow-sm border-0 mt-4">
       <div className="card-header bg-dark text-white fw-bold">
-        Currículo: Locais de atuação
+        Cidades da Rede Hoteleira
       </div>
       <div className="card-body p-0">
         <div 
