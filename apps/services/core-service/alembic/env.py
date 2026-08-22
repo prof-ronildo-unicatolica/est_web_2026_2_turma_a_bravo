@@ -7,6 +7,9 @@ from alembic import context
 # Importar modelos e configurações
 from app.core.config import settings
 from app.models.tutorial import Base
+from app.models.usuario import Usuario
+from app.models.cidade import Cidade
+from app.models.hotel import Hotel
 
 # Objeto de configuração do Alembic
 config = context.config

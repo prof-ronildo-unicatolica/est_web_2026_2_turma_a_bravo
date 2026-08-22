@@ -14,4 +14,4 @@ class Usuario(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     senha: Mapped[str] = mapped_column(String(255), nullable=False)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
