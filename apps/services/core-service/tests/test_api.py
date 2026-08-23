@@ -17,7 +17,7 @@ def test_get_sobre_returns_200(client, db_session):
     response = client.get("/api/v1/sobre")
     assert response.status_code == 200
     json_data = response.json()
-    assert json_data["equipe"] == "Alpha"
+    assert json_data["equipe"] == "Bravo"
     assert json_data["professor"]["nome"] == "Ronildo Silva"
 
 
