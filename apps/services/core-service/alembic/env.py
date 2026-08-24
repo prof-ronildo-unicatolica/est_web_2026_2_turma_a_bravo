@@ -6,10 +6,10 @@ from alembic import context
 
 # Importar modelos e configurações
 from app.core.config import settings
+from app.models.cidade import Cidade  # noqa: F401
+from app.models.hotel import Hotel  # noqa: F401
 from app.models.tutorial import Base
-from app.models.usuario import Usuario
-from app.models.cidade import Cidade
-from app.models.hotel import Hotel
+from app.models.usuario import Usuario  # noqa: F401
 
 # Objeto de configuração do Alembic
 config = context.config
