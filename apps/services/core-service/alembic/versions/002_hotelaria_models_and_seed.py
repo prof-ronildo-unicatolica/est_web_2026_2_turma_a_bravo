@@ -1,8 +1,3 @@
-"""hotelaria models and seed
-
-Revision ID: 002
-Revises: 001
-"""
 
 import uuid
 from typing import Sequence, Union
@@ -19,7 +14,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-   
+
     # Tabela de usuários
     op.create_table(
         "usuarios",
@@ -57,82 +52,112 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["cidade_id"], ["cidades.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_index("ix_hoteis_cidade_id", "hoteis", ["cidade_id"])
 
-    # IDs do seed
     admin_id = uuid.uuid4()
     fortaleza_id = uuid.uuid4()
     quixada_id = uuid.uuid4()
     canoa_id = uuid.uuid4()
 
+    usuarios_table = sa.table(
+        "usuarios",
+        sa.column("id", sa.UUID()),
+        sa.column("nome", sa.String()),
+        sa.column("email", sa.String()),
+        sa.column("senha", sa.String()),
+        sa.column("ativo", sa.Boolean()),
+        sa.column("is_admin", sa.Boolean()),
+    )
+
+    cidades_table = sa.table(
+        "cidades",
+        sa.column("id", sa.UUID()),
+        sa.column("nome", sa.String()),
+        sa.column("uf", sa.String()),
+    )
+
+    hoteis_table = sa.table(
+        "hoteis",
+        sa.column("id", sa.UUID()),
+        sa.column("nome", sa.String()),
+        sa.column("endereco", sa.String()),
+        sa.column("estrelas", sa.Integer()),
+        sa.column("cidade_id", sa.UUID()),
+    )
+
     # Usuário administrador
-    op.execute(
-        sa.text(
-            """
-            INSERT INTO usuarios
-                (id, nome, email, senha, ativo, is_admin)
-            VALUES
-                (:id, :nome, :email, :senha, :ativo, :is_admin)
-            """
-        ).bindparams(
-            id=admin_id,
-            nome="Administrador da Franquia",
-            email="admin@hotel.com",
-            senha="admin123",
-            ativo=True,
-            is_admin=True,
-        )
+    # NOTA: senha em texto puro serve apenas para seed local de dev.
+    # Se o model de usuário já usa hashing (bcrypt/passlib), troque por
+    # senha=<hash>; nunca deve ir para produção como texto puro.
+    op.bulk_insert(
+        usuarios_table,
+        [
+            {
+                "id": admin_id,
+                "nome": "Administrador da Franquia",
+                "email": "admin@hotel.com",
+                "senha": "admin123",
+                "ativo": True,
+                "is_admin": True,
+            }
+        ],
     )
 
     # Cidades
-    cidades = [
-        (fortaleza_id, "Fortaleza", "CE"),
-        (quixada_id, "Quixadá", "CE"),
-        (canoa_id, "Canoa Quebrada", "CE"),
-    ]
-
-    for cidade_id, nome, uf in cidades:
-        op.execute(
-            sa.text(
-                """
-                INSERT INTO cidades (id, nome, uf)
-                VALUES (:id, :nome, :uf)
-                """
-            ).bindparams(
-                id=cidade_id,
-                nome=nome,
-                uf=uf,
-            )
-        )
+    op.bulk_insert(
+        cidades_table,
+        [
+            {"id": fortaleza_id, "nome": "Fortaleza", "uf": "CE"},
+            {"id": quixada_id, "nome": "Quixadá", "uf": "CE"},
+            {"id": canoa_id, "nome": "Canoa Quebrada", "uf": "CE"},
+        ],
+    )
 
     # Hotéis de 1 a 5 estrelas
-    hoteis = [
-        ("Hotel Econômico", "Rua Central, 100", 1, quixada_id),
-        ("Hotel Sertão", "Av. Principal, 200", 2, quixada_id),
-        ("Hotel Executivo", "Av. Beira Mar, 300", 3, fortaleza_id),
-        ("Hotel Praia", "Av. das Dunas, 400", 4, canoa_id),
-        ("Hotel Premium", "Av. Beira Mar, 500", 5, fortaleza_id),
-    ]
-
-    for nome, endereco, estrelas, cidade_id in hoteis:
-        op.execute(
-            sa.text(
-                """
-                INSERT INTO hoteis
-                    (id, nome, endereco, estrelas, cidade_id)
-                VALUES
-                    (:id, :nome, :endereco, :estrelas, :cidade_id)
-                """
-            ).bindparams(
-                id=uuid.uuid4(),
-                nome=nome,
-                endereco=endereco,
-                estrelas=estrelas,
-                cidade_id=cidade_id,
-            )
-        )
+    op.bulk_insert(
+        hoteis_table,
+        [
+            {
+                "id": uuid.uuid4(),
+                "nome": "Hotel Econômico",
+                "endereco": "Rua Central, 100",
+                "estrelas": 1,
+                "cidade_id": quixada_id,
+            },
+            {
+                "id": uuid.uuid4(),
+                "nome": "Hotel Sertão",
+                "endereco": "Av. Principal, 200",
+                "estrelas": 2,
+                "cidade_id": quixada_id,
+            },
+            {
+                "id": uuid.uuid4(),
+                "nome": "Hotel Executivo",
+                "endereco": "Av. Beira Mar, 300",
+                "estrelas": 3,
+                "cidade_id": fortaleza_id,
+            },
+            {
+                "id": uuid.uuid4(),
+                "nome": "Hotel Praia",
+                "endereco": "Av. das Dunas, 400",
+                "estrelas": 4,
+                "cidade_id": canoa_id,
+            },
+            {
+                "id": uuid.uuid4(),
+                "nome": "Hotel Premium",
+                "endereco": "Av. Beira Mar, 500",
+                "estrelas": 5,
+                "cidade_id": fortaleza_id,
+            },
+        ],
+    )
 
 
 def downgrade() -> None:
+    op.drop_index("ix_hoteis_cidade_id", table_name="hoteis")
     op.drop_table("hoteis")
     op.drop_table("cidades")
     op.drop_table("usuarios")
