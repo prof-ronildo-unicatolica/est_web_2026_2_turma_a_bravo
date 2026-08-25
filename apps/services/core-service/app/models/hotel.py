@@ -30,3 +30,6 @@ class Hotel(Base):
     )
 
     cidade: Mapped["Cidade"] = relationship(back_populates="hoteis")  # noqa: F821
+
+
+#correção da classe duplicada
