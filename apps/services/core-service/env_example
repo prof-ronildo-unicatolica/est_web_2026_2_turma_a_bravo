@@ -11,3 +11,8 @@ POSTGRES_PORT=5432
 # MongoDB Config
 MONGODB_URL=mongodb://admin:admin123@localhost:27017
 MONGODB_DB=hotel_mongo_dev
+
+# Security Config
+SECRET_KEY=change-me
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
