@@ -4,7 +4,6 @@ from app.models.hotel import Cidade, Hotel
 
 
 class CidadeRepository:
-    """Acesso ao banco para a entidade Cidade. Sem regra de negocio aqui."""
 
     def __init__(self, db: Session):
         self.db = db
@@ -27,7 +26,6 @@ class CidadeRepository:
 
 
 class HotelRepository:
-    """Acesso ao banco para a entidade Hotel."""
 
     def __init__(self, db: Session):
         self.db = db
