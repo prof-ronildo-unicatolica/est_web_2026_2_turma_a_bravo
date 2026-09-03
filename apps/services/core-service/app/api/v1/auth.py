@@ -1,4 +1,5 @@
 """Rotas de autenticacao e autorizacao."""
+"login e usuario logado"
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
