@@ -1,14 +1,21 @@
-"""Rotas de autenticacao/autorizacao - VERSAO BASICA (placeholder).
+"""Rotas de autenticacao/autorizacao.
 
-⚠️ Implementacao simplificada (if/else, sem hash, sem JWT) para o exemplo
-base funcionar. A versao completa e a ATIVIDADE DA SPRINT 2:
+⚠️ /login, /me e /admin/verificacao ainda usam a versao BASICA (placeholder,
+sem JWT, se apoiando em app.api.deps). /register ja usa a tabela real
+`usuarios` do PostgreSQL, com senha em hash bcrypt.
+
+A versao completa (JWT + login/me via banco) e a ATIVIDADE DA SPRINT 2:
     docs/02_engenharia_software/atividade_auth_sprint2.md
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.api.deps import autenticar_credenciais, get_current_admin, get_current_user
-from app.schemas.usuario import LoginRequest, Token, UsuarioPublic
+from app.core.database import get_db
+from app.core.security import hash_password
+from app.models.usuario import Usuario
+from app.schemas.usuario import LoginRequest, Token, UsuarioCreate, UsuarioPublic
 
 router = APIRouter(prefix="/auth", tags=["Auth (basico)"])
 
@@ -36,3 +43,27 @@ def get_me(usuario_atual: dict = Depends(get_current_user)):
 def somente_admin(admin: dict = Depends(get_current_admin)):
     """Rota administrativa de exemplo (autorizacao por is_admin)."""
     return {"mensagem": f"Acesso administrativo concedido para {admin['nome']}"}
+
+
+@router.post("/register", response_model=UsuarioPublic, status_code=status.HTTP_201_CREATED)
+def register(payload: UsuarioCreate, db: Session = Depends(get_db)):
+    """Cadastra um novo usuario com senha em hash (bcrypt)."""
+    # Verifica e-mail duplicado
+    usuario_existente = db.query(Usuario).filter(Usuario.email == payload.email).first()
+    if usuario_existente is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="E-mail ja cadastrado",
+        )
+
+    novo_usuario = Usuario(
+        nome=payload.nome,
+        email=payload.email,
+        senha=hash_password(payload.senha),
+        is_admin=False,
+    )
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+
+    return novo_usuario
