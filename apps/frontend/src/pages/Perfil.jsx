@@ -1,22 +1,36 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 
 export default function Perfil() {
   const [usuario, setUsuario] = useState(null)
   const [erro, setErro] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function carregarPerfil() {
+      const token = localStorage.getItem('token')
+
+      if (!token) {
+        navigate('/login')
+        retunr
+      }
+      
       try {
         const dados = await apiFetch('/auth/me')
         setUsuario(dados)
       } catch (erro) {
+        if (erro.message === '401') {
+          navigate('/login')
+          return
+        }
+
         setErro('Não foi possível carregar o perfil')
       }
     }
 
     carregarPerfil()
-  }, [])
+  }, [navigate])
 
   if (erro) {
     return (

@@ -17,6 +17,11 @@ async function apiFetch(endpoint, options = {}) {
     headers
   })
 
+  if (response.status === 401) {
+    localStorage.removeItem('token')
+    throw new Error('401')
+  }
+
   if (!response.ok) {
     throw new Error(`Erro na API: ${response.status}`)
   }
