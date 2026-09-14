@@ -1,22 +1,57 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { apiFetch } from '../services/api'
 
 export default function Cadastro() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [sucesso, setSucesso] = useState('')
+  const navigate = useNavigate()
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
 
-    console.log('Nome:', nome)
-    console.log('E-mail:', email)
-    console.log('Senha:', senha)
+    setErro('')
+    setSucesso('')
+
+    try {
+      await apiFetch('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome,
+          email,
+          senha
+        })
+      })
+
+      setSucesso('Cadastro realizado com sucesso!')
+
+      setTimeout(() => {
+        navigate('/login')
+      }, 1500)
+    } catch (erro) {
+      setErro('Não foi possível realizar o cadastro.')
+    }
   }
 
   return (
     <div className="card shadow-sm">
       <div className="card-body p-4">
         <h2 className="mb-4">Cadastro</h2>
+
+        {erro && (
+          <div className="alert alert-danger">
+            {erro}
+          </div>
+        )}
+
+        {sucesso && (
+          <div className="alert alert-success">
+            {sucesso}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -48,6 +83,7 @@ export default function Cadastro() {
               className="form-control"
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
+              minLength="6"
               required
             />
           </div>
