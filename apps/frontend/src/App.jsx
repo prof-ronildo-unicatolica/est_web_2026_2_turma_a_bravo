@@ -6,6 +6,8 @@ import Cidades from './pages/Cidades'
 import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
 import Perfil from './pages/Perfil'
+import ProtectedRoute from './components/ProtectedRoute'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -57,7 +59,8 @@ export default function App() {
               <Route path="/cidades" element={<Cidades />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
-              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Routes>
           </div>
         </div>
