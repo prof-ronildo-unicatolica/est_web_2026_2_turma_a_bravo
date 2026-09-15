@@ -1227,6 +1227,23 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pyjwt"
+version = "2.13.0"
+description = "JSON Web Token implementation in Python"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pyjwt-2.13.0-py3-none-any.whl", hash = "sha256:66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728"},
+    {file = "pyjwt-2.13.0.tar.gz", hash = "sha256:41571c89ca91598c79e8ef18a2d07367d4810fbbd6f637794879baf1b7703423"},
+]
+
+[package.dependencies]
+typing_extensions = {version = ">=4.0", markers = "python_version < \"3.11\""}
+
+[package.extras]
+crypto = ["cryptography (>=3.4.0)"]
+
+[[package]]
 name = "pymongo"
 version = "4.17.0"
 description = "PyMongo - the Official MongoDB Python driver"
@@ -2110,4 +2127,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7f0b2135b209c3c89de44cf76e93c6adb5f385001d67e2eca47e3c33fa0e17a0"
+content-hash = "08af6624738d2e79f3a8e115f42df284997fef4e795c3acbd8498a0daa23c28b"
