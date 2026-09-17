@@ -24,6 +24,7 @@ class Hotel(Base):
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     endereco: Mapped[str] = mapped_column(String(150), nullable=False)
     estrelas: Mapped[int] = mapped_column(Integer, nullable=False)
+    diaria: Mapped[str] = mapped_column(String(50), nullable=False, default="R$ 0")
 
     cidade_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("cidades.id", ondelete="CASCADE"), nullable=False
