@@ -5,6 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin
 from app.core.database import get_db
+
+# Importa o model Hotel para que o SQLAlchemy reconheça
+# o relacionamento entre Cidade e Hotel.
+from app.models.hotel import Hotel  # noqa: F401
+
 from app.repositories.cidade_repository import CidadeRepository
 from app.schemas.cidade import (
     CidadeCreateSchema,
