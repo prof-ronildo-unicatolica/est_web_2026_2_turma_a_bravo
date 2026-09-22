@@ -31,5 +31,15 @@ class Hotel(Base):
 
     cidade: Mapped["Cidade"] = relationship(back_populates="hoteis")  # noqa: F821
 
+    @property
+    def categoria_estrelas(self) -> str:
+        """Categoria textual derivada do numero de estrelas.
 
-#correção da classe duplicada
+        Nao e uma coluna do banco -- e calculada em Python a partir de
+        `estrelas`, entao nao precisa de migration nem ocupa espaco extra.
+        """
+        if self.estrelas <= 2:
+            return "Economico"
+        if self.estrelas == 3:
+            return "Padrao"
+        return "Luxo"
