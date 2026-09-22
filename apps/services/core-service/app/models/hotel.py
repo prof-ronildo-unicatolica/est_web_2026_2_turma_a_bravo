@@ -34,3 +34,15 @@ class Hotel(Base):
         secondary=hotel_comodidade, back_populates="hoteis"
     )
 
+    @property
+    def categoria_estrelas(self) -> str:
+        """Categoria textual derivada do numero de estrelas.
+
+        Nao e uma coluna do banco -- e calculada em Python a partir de
+        `estrelas`, entao nao precisa de migration nem ocupa espaco extra.
+        """
+        if self.estrelas <= 2:
+            return "Economico"
+        if self.estrelas == 3:
+            return "Padrao"
+        return "Luxo"
