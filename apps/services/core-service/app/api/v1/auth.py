@@ -1,11 +1,18 @@
-"""Rotas de autenticacao e autorizacao."""
-"login e usuario logado"
+"""Rotas de autenticacao/autorizacao.
+
+/login gera um JWT de acesso apos validar as credenciais.
+/me retorna o perfil do usuario autenticado via token.
+/register cadastra um novo usuario, salvando a senha em hash bcrypt.
+"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.api.deps import autenticar_credenciais, get_current_admin, get_current_user
-from app.core.security import create_access_token
-from app.schemas.usuario import LoginRequest, Token, UsuarioPublic
+from app.core.database import get_db
+from app.core.security import create_access_token, hash_password
+from app.models.usuario import Usuario
+from app.schemas.usuario import LoginRequest, Token, UsuarioCreate, UsuarioPublic
 
 router = APIRouter(prefix="/auth", tags=["Auth (basico)"])
 
@@ -32,3 +39,27 @@ def get_me(usuario_atual: dict = Depends(get_current_user)):
 def somente_admin(admin: dict = Depends(get_current_admin)):
     """Rota administrativa de exemplo (autorizacao por is_admin)."""
     return {"mensagem": f"Acesso administrativo concedido para {admin['nome']}"}
+
+
+@router.post("/register", response_model=UsuarioPublic, status_code=status.HTTP_201_CREATED)
+def register(payload: UsuarioCreate, db: Session = Depends(get_db)):
+    """Cadastra um novo usuario com senha em hash (bcrypt)."""
+    # Verifica e-mail duplicado
+    usuario_existente = db.query(Usuario).filter(Usuario.email == payload.email).first()
+    if usuario_existente is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="E-mail ja cadastrado",
+        )
+
+    novo_usuario = Usuario(
+        nome=payload.nome,
+        email=payload.email,
+        senha=hash_password(payload.senha),
+        is_admin=False,
+    )
+    db.add(novo_usuario)
+    db.commit()
+    db.refresh(novo_usuario)
+
+    return novo_usuario

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.auth import router as auth_router
 from app.api.v1.gestao import router as gestao_router
 from app.api.v1.health import router as health_router
+from app.api.v1.hotel import router as hotel_router
 from app.api.v1.sobre import router as sobre_router
 from app.core.config import settings
 from app.core.database import get_mongo_db
