@@ -33,10 +33,16 @@ export default function App() {
               <li className="nav-item">
                 <Link className="nav-link" to="/cidades">Cidades</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin">Admin</Link>
+              </li>
             </ul>
             <div className="d-flex align-items-center gap-2">
               <Link className="btn btn-outline-primary btn-sm px-3" to="/login">
                 Login
+              </Link>
+              <Link className="btn btn-outline-warning btn-sm px-3" to="/admin">
+                Painel Admin
               </Link>
               <Link className="btn btn-primary btn-sm px-3" to="/perfil">
                 Perfil

@@ -1,4 +1,199 @@
-/* 
-  Arquivo CSS para personalizacao propria dos alunos.
-  Adicione suas regras CSS personalizadas aqui!
-*/
+.admin-panel {
+  padding: 0.5rem 0;
+}
+
+.admin-badge {
+  display: inline-block;
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  border-radius: 999px;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.9rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1rem;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  min-height: 120px;
+}
+
+.stat-card-primary {
+  background: linear-gradient(135deg, #edf5ff, #dfeeff);
+}
+
+.stat-card-success {
+  background: linear-gradient(135deg, #ebfff3, #dff8ea);
+}
+
+.stat-card-warning {
+  background: linear-gradient(135deg, #fff8e7, #fff1cc);
+}
+
+.stat-card-info {
+  background: linear-gradient(135deg, #eefbff, #dff4ff);
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 1.7rem;
+}
+
+.stat-card small,
+.stat-card span {
+  color: #6c757d;
+  display: block;
+}
+
+.stat-card h3 {
+  margin: 0.2rem 0;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-card {
+  border: none;
+  border-radius: 1.1rem;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-list-item {
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.admin-list-item h5 {
+  margin-bottom: 0.35rem;
+  font-size: 1.05rem;
+}
+
+.admin-list-item p {
+  margin-bottom: 0.3rem;
+  color: #495057;
+}
+
+.admin-pill {
+  background: #e9f7ef;
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.2);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.activity-list {
+  padding-left: 1.1rem;
+  margin-bottom: 0;
+  color: #495057;
+}
+
+.activity-list li + li {
+  margin-top: 0.7rem;
+}
+
+.city-form .form-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.city-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.9rem;
+  background: #f8f9fa;
+}
+
+.city-item h5 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.city-table th,
+.city-table td {
+  vertical-align: middle;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.city-uf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: #eaf2ff;
+  color: #0d6efd;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.city-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.city-status {
+  display: inline-block;
+  background: #e9f7ef;
+  color: #198754;
+  border: 1px solid rgba(25, 135, 84, 0.15);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.city-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .stat-card {
+    min-height: 100px;
+  }
+
+  .city-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
