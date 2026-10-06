@@ -61,6 +61,7 @@ class Hotel(Base):
     cidade: Mapped["Cidade"] = relationship(back_populates="hoteis")
     endereco: Mapped[str] = mapped_column(String(150), nullable=False)
     estrelas: Mapped[int] = mapped_column(Integer, nullable=False)
+    diaria: Mapped[str] = mapped_column(String(50), nullable=False, default="R$ 0")
 
     cidade_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("cidades.id", ondelete="CASCADE"),

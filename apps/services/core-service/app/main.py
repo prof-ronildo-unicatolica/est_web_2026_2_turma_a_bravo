@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.auth import router as auth_router
+from app.api.v1.gestao import router as gestao_router
 from app.api.v1.comodidades import hotel_comodidades_router, router as comodidades_router
 from app.api.v1.cidades import router as cidades_router
 from app.api.v1.health import router as health_router
@@ -41,6 +42,7 @@ app.add_middleware(
 app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(sobre_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(gestao_router, prefix=settings.API_V1_STR)
 app.include_router(comodidades_router, prefix=settings.API_V1_STR)
 app.include_router(hotel_comodidades_router, prefix=settings.API_V1_STR)
 app.include_router(cidades_router, prefix=settings.API_V1_STR)
