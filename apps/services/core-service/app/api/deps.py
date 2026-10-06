@@ -1,29 +1,21 @@
-"""Dependencias de autenticacao/autorizacao - VERSAO BASICA (placeholder).
-
-⚠️ ATENCAO: implementacao PROPOSITALMENTE simplificada (apenas if/else,
-SEM hash de senha e SEM JWT). Existe apenas para o exemplo base funcionar
-ponta a ponta e dar um contrato de API estavel ao frontend.
-
-A implementacao REAL (senha em bcrypt + JWT assinado + RBAC via banco de
-dados) e a ATIVIDADE DA SPRINT 2:
-    docs/02_engenharia_software/atividade_auth_sprint2.md
-"""
+"""Dependencias de autenticacao e autorizacao."""
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt import InvalidTokenError
 
-# "Banco" de usuarios em memoria (placeholder). Na atividade da Sprint 2
-# isto sera substituido pela tabela `usuarios` no PostgreSQL, com as
-# senhas armazenadas em hash bcrypt.
+from app.core.security import decode_access_token, hash_password, verify_password
+
+# Fonte de usuarios provisoria; as senhas continuam armazenadas somente como hash.
 USUARIOS_DEMO = {
     "admin@hotel.com": {
         "nome": "Administrador da Franquia",
-        "senha": "admin123",
+        "senha_hash": hash_password("admin123"),
         "is_admin": True,
     },
     "cliente@hotel.com": {
         "nome": "Cliente Demonstracao",
-        "senha": "cliente123",
+        "senha_hash": hash_password("cliente123"),
         "is_admin": False,
     },
 }
@@ -32,23 +24,27 @@ bearer_scheme = HTTPBearer(description="Use o token retornado por POST /auth/log
 
 
 def autenticar_credenciais(email: str, senha: str) -> dict | None:
-    """Confere e-mail/senha por comparacao direta (SEM hash). Placeholder."""
+    """Confere e-mail e senha usando o hash bcrypt armazenado."""
     usuario = USUARIOS_DEMO.get(email)
-    # Autenticacao basica: apenas um if/else comparando a senha em texto plano.
-    if usuario is None or usuario["senha"] != senha:
+    if usuario is None or not verify_password(senha, usuario["senha_hash"]):
         return None
-    return {"email": email, **usuario}
+    return {
+        "email": email,
+        "nome": usuario["nome"],
+        "is_admin": usuario["is_admin"],
+    }
 
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
 ) -> dict:
-    """Valida o 'token' e retorna o usuario autenticado.
+    """Valida o JWT e retorna os dados do usuario autenticado."""
+    try:
+        payload = decode_access_token(credentials.credentials)
+        email = payload.get("sub")
+    except InvalidTokenError:
+        email = None
 
-    VERSAO BASICA: o 'token' e simplesmente o proprio e-mail, sem
-    assinatura nem expiracao. Na Sprint 2 isto passa a decodificar um JWT.
-    """
-    email = credentials.credentials
     usuario = USUARIOS_DEMO.get(email)
     if usuario is None:
         raise HTTPException(
@@ -56,11 +52,15 @@ def get_current_user(
             detail="Token invalido",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return {"email": email, **usuario}
+    return {
+        "email": email,
+        "nome": usuario["nome"],
+        "is_admin": usuario["is_admin"],
+    }
 
 
 def get_current_admin(usuario: dict = Depends(get_current_user)) -> dict:
-    """Autorizacao (RBAC) basica: exige is_admin=True. Apenas um if/else."""
+    """Exige que o usuario autenticado tenha permissao administrativa."""
     if not usuario["is_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

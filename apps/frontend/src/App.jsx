@@ -3,6 +3,11 @@ import Sidebar from './components/Sidebar'
 import Home from './pages/Home'
 import Hoteis from './pages/Hoteis'
 import Cidades from './pages/Cidades'
+import Login from './pages/Login'
+import Cadastro from './pages/Cadastro'
+import Perfil from './pages/Perfil'
+import ProtectedRoute from './components/ProtectedRoute'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -30,12 +35,12 @@ export default function App() {
               </li>
             </ul>
             <div className="d-flex align-items-center gap-2">
-              <button className="btn btn-outline-primary btn-sm px-3" type="button">
+              <Link className="btn btn-outline-primary btn-sm px-3" to="/login">
                 Login
-              </button>
-              <button className="btn btn-primary btn-sm px-3" type="button">
+              </Link>
+              <Link className="btn btn-primary btn-sm px-3" to="/perfil">
                 Perfil
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -52,6 +57,10 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/hoteis" element={<Hoteis />} />
               <Route path="/cidades" element={<Cidades />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Routes>
           </div>
         </div>

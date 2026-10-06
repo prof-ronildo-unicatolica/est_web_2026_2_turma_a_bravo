@@ -1,13 +1,26 @@
 const baseURL = 'http://localhost:8000/api/v1'
 
 async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('token')
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   const response = await fetch(`${baseURL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
-    ...options
+    ...options,
+    headers
   })
+
+  if (response.status === 401) {
+    localStorage.removeItem('token')
+    throw new Error('401')
+  }
 
   if (!response.ok) {
     throw new Error(`Erro na API: ${response.status}`)
