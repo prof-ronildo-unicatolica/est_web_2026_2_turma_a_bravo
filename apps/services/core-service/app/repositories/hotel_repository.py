@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.hotel import Cidade
+from app.models.cidade import Cidade
 
 
 class CidadeRepository:

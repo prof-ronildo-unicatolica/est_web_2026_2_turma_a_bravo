@@ -5,7 +5,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.comodidade import Comodidade
+from app.models.comodidades import Comodidade
 from app.models.hotel import Hotel
 
 

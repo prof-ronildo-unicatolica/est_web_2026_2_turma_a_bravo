@@ -34,8 +34,9 @@ services:
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
-      timeout: 5s
+      timeout: 30s
       retries: 5
+      start_period: 120s
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -50,8 +51,9 @@ services:
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 30s
       retries: 5
+      start_period: 120s
 
   # ─── Backend (Core Service) ─────────────────────────────────────────────────
   core-service:
