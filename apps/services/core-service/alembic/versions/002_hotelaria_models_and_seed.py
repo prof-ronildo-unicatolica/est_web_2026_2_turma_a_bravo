@@ -84,10 +84,7 @@ def upgrade() -> None:
         sa.column("cidade_id", sa.UUID()),
     )
 
-    # Usuário administrador
-    # NOTA: senha em texto puro serve apenas para seed local de dev.
-    # Se o model de usuário já usa hashing (bcrypt/passlib), troque por
-    # senha=<hash>; nunca deve ir para produção como texto puro.
+
     op.bulk_insert(
         usuarios_table,
         [
