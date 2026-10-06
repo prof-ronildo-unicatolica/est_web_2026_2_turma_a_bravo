@@ -9,6 +9,16 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.tutorial import Base
 from app.models.comodidade import hotel_comodidade
 
+
+class Cidade(Base):
+    __tablename__ = "cidades"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    nome: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    hoteis: Mapped[List["Hotel"]] = relationship(
+        back_populates="cidade", cascade="all, delete-orphan"
+    )
+
 if TYPE_CHECKING:
     from app.models.cidade import Cidade
     from app.models.comodidade import Comodidade
@@ -21,6 +31,10 @@ class Hotel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
+    cidade_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("cidades.id", ondelete="CASCADE"), nullable=False
+    )
+    cidade: Mapped["Cidade"] = relationship(back_populates="hoteis")
     endereco: Mapped[str] = mapped_column(String(150), nullable=False)
     estrelas: Mapped[int] = mapped_column(Integer, nullable=False)
 
