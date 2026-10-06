@@ -5,8 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.auth import router as auth_router
 from app.api.v1.gestao import router as gestao_router
+from app.api.v1.comodidades import hotel_comodidades_router, router as comodidades_router
+from app.api.v1.cidades import router as cidades_router
 from app.api.v1.health import router as health_router
 from app.api.v1.hotel import router as hotel_router
+from app.api.v1.quartos import router as quartos_router
 from app.api.v1.sobre import router as sobre_router
 from app.core.config import settings
 from app.core.database import get_mongo_db
@@ -15,7 +18,7 @@ from app.core.seed_mongo import seed_mongo_users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Evento de inicialização: Popular/Semear o MongoDB
+    # Evento de inicializacao: Popular/Semear o MongoDB
     mongo_db = get_mongo_db()
     await seed_mongo_users(mongo_db)
     yield
@@ -27,7 +30,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuração de CORS para permitir acesso do Frontend
+# Configuracao de CORS para permitir acesso do Frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -40,6 +43,11 @@ app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(sobre_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(gestao_router, prefix=settings.API_V1_STR)
+app.include_router(comodidades_router, prefix=settings.API_V1_STR)
+app.include_router(hotel_comodidades_router, prefix=settings.API_V1_STR)
+app.include_router(cidades_router, prefix=settings.API_V1_STR)
+app.include_router(hotel_router, prefix=settings.API_V1_STR)
+app.include_router(quartos_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")
