@@ -4,18 +4,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin
-from app.core.database import get_db
+from app.core.database import get_db, get_mongo_db
 
 # Importa o model Hotel para que o SQLAlchemy reconheça
 # o relacionamento entre Cidade e Hotel.
 from app.models.hotel import Hotel  # noqa: F401
-
 from app.repositories.cidade_repository import CidadeRepository
 from app.schemas.cidade import (
     CidadeCreateSchema,
     CidadeResponseSchema,
     CidadeUpdateSchema,
 )
+from app.services.catalogo_hoteis import sincronizar_hoteis_por_ids
 
 router = APIRouter(prefix="/cidades", tags=["Cidades"])
 
@@ -63,10 +63,11 @@ def criar_cidade(
 
 
 @router.put("/{cidade_id}", response_model=CidadeResponseSchema)
-def atualizar_cidade(
+async def atualizar_cidade(
     cidade_id: uuid.UUID,
     payload: CidadeUpdateSchema,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     admin: dict = Depends(get_current_admin),
 ):
     repository = CidadeRepository(db)
@@ -79,22 +80,26 @@ def atualizar_cidade(
         )
 
     uf = payload.uf.upper() if payload.uf is not None else None
+    hotel_ids = {hotel.id for hotel in cidade.hoteis}
 
-    return repository.update(
+    cidade = repository.update(
         cidade=cidade,
         nome=payload.nome,
         uf=uf,
         limite_territorial=payload.limite_territorial,
     )
+    await sincronizar_hoteis_por_ids(db, mongo_db, hotel_ids)
+    return cidade
 
 
 @router.delete(
     "/{cidade_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def excluir_cidade(
+async def excluir_cidade(
     cidade_id: uuid.UUID,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     admin: dict = Depends(get_current_admin),
 ):
     repository = CidadeRepository(db)
@@ -106,5 +111,7 @@ def excluir_cidade(
             detail="Cidade nao encontrada",
         )
 
+    hotel_ids = {hotel.id for hotel in cidade.hoteis}
     repository.delete(cidade)
+    await sincronizar_hoteis_por_ids(db, mongo_db, hotel_ids)
     return None

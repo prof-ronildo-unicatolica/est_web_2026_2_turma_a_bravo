@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
-from app.core.database import get_db
+from app.core.database import get_db, get_mongo_db
 from app.models.cidade import Cidade
 from app.models.hotel import Hotel
 from app.schemas.hotel import (
@@ -14,6 +14,7 @@ from app.schemas.hotel import (
     HotelResponseSchema,
     HotelUpdateSchema,
 )
+from app.services.catalogo_hoteis import sincronizar_hoteis_por_ids
 
 router = APIRouter(tags=["Gestão"])
 
@@ -53,16 +54,23 @@ def criar_cidade(payload: CidadeCreateSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/cidades/{cidade_id}", response_model=CidadeResponseSchema)
-def atualizar_cidade(cidade_id: uuid.UUID, payload: CidadeUpdateSchema, db: Session = Depends(get_db)):
+async def atualizar_cidade(
+    cidade_id: uuid.UUID,
+    payload: CidadeUpdateSchema,
+    db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
+):
     cidade = db.get(Cidade, cidade_id)
     if not cidade:
         raise HTTPException(status_code=404, detail="Cidade nao encontrada")
 
+    hotel_ids = {hotel.id for hotel in cidade.hoteis}
     cidade.nome = payload.nome.strip()
     cidade.uf = payload.uf.strip().upper()
 
     db.commit()
     db.refresh(cidade)
+    await sincronizar_hoteis_por_ids(db, mongo_db, hotel_ids)
 
     return CidadeResponseSchema(
         id=cidade.id,
@@ -74,13 +82,19 @@ def atualizar_cidade(cidade_id: uuid.UUID, payload: CidadeUpdateSchema, db: Sess
 
 
 @router.delete("/cidades/{cidade_id}", status_code=status.HTTP_204_NO_CONTENT)
-def excluir_cidade(cidade_id: uuid.UUID, db: Session = Depends(get_db)):
+async def excluir_cidade(
+    cidade_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
+):
     cidade = db.get(Cidade, cidade_id)
     if not cidade:
         raise HTTPException(status_code=404, detail="Cidade nao encontrada")
 
+    hotel_ids = {hotel.id for hotel in cidade.hoteis}
     db.delete(cidade)
     db.commit()
+    await sincronizar_hoteis_por_ids(db, mongo_db, hotel_ids)
     return None
 
 
@@ -103,7 +117,11 @@ def listar_hoteis(db: Session = Depends(get_db)):
 
 
 @router.post("/hoteis", response_model=HotelResponseSchema, status_code=status.HTTP_201_CREATED)
-def criar_hotel(payload: HotelCreateSchema, db: Session = Depends(get_db)):
+async def criar_hotel(
+    payload: HotelCreateSchema,
+    db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
+):
     cidade = db.get(Cidade, payload.cidade_id)
     if not cidade:
         raise HTTPException(status_code=404, detail="Cidade nao encontrada")
@@ -118,6 +136,7 @@ def criar_hotel(payload: HotelCreateSchema, db: Session = Depends(get_db)):
     db.add(hotel)
     db.commit()
     db.refresh(hotel)
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel.id})
 
     return HotelResponseSchema(
         id=hotel.id,
@@ -132,7 +151,12 @@ def criar_hotel(payload: HotelCreateSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/hoteis/{hotel_id}", response_model=HotelResponseSchema)
-def atualizar_hotel(hotel_id: uuid.UUID, payload: HotelUpdateSchema, db: Session = Depends(get_db)):
+async def atualizar_hotel(
+    hotel_id: uuid.UUID,
+    payload: HotelUpdateSchema,
+    db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
+):
     hotel = db.get(Hotel, hotel_id)
     if not hotel:
         raise HTTPException(status_code=404, detail="Hotel nao encontrado")
@@ -149,6 +173,7 @@ def atualizar_hotel(hotel_id: uuid.UUID, payload: HotelUpdateSchema, db: Session
 
     db.commit()
     db.refresh(hotel)
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel.id})
 
     return HotelResponseSchema(
         id=hotel.id,
@@ -163,11 +188,16 @@ def atualizar_hotel(hotel_id: uuid.UUID, payload: HotelUpdateSchema, db: Session
 
 
 @router.delete("/hoteis/{hotel_id}", status_code=status.HTTP_204_NO_CONTENT)
-def excluir_hotel(hotel_id: uuid.UUID, db: Session = Depends(get_db)):
+async def excluir_hotel(
+    hotel_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
+):
     hotel = db.get(Hotel, hotel_id)
     if not hotel:
         raise HTTPException(status_code=404, detail="Hotel nao encontrado")
 
     db.delete(hotel)
     db.commit()
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel_id})
     return None

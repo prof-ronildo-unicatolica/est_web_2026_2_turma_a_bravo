@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin
-from app.core.database import get_db
+from app.core.database import get_db, get_mongo_db
 from app.models.hotel import Hotel
 from app.models.quarto import Quarto
 from app.schemas.quarto import (
@@ -18,6 +18,7 @@ from app.schemas.quarto import (
     QuartoResponseSchema,
     QuartoUpdateSchema,
 )
+from app.services.catalogo_hoteis import sincronizar_hoteis_por_ids
 
 router = APIRouter(prefix="/quartos", tags=["Quartos"])
 
@@ -64,9 +65,10 @@ def obter_quarto(
     response_model=QuartoResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
-def cadastrar_quarto(
+async def cadastrar_quarto(
     payload: QuartoCreateSchema,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Cadastra um quarto. Restrito a administradores."""
@@ -84,20 +86,23 @@ def cadastrar_quarto(
     db.add(novo_quarto)
     db.commit()
     db.refresh(novo_quarto)
+    await sincronizar_hoteis_por_ids(db, mongo_db, {novo_quarto.hotel_id})
 
     return novo_quarto
 
 
 @router.put("/{quarto_id}", response_model=QuartoResponseSchema)
-def editar_quarto(
+async def editar_quarto(
     quarto_id: uuid.UUID,
     payload: QuartoUpdateSchema,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Edita um quarto. Restrito a administradores."""
 
     quarto = _buscar_quarto_ou_404(quarto_id, db)
+    hotel_ids = {quarto.hotel_id}
 
     dados = payload.model_dump(exclude_unset=True)
 
@@ -106,9 +111,11 @@ def editar_quarto(
 
     for campo, valor in dados.items():
         setattr(quarto, campo, valor)
+    hotel_ids.add(quarto.hotel_id)
 
     db.commit()
     db.refresh(quarto)
+    await sincronizar_hoteis_por_ids(db, mongo_db, hotel_ids)
 
     return quarto
 
@@ -117,16 +124,19 @@ def editar_quarto(
     "/{quarto_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def excluir_quarto(
+async def excluir_quarto(
     quarto_id: uuid.UUID,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Exclui um quarto. Restrito a administradores."""
 
     quarto = _buscar_quarto_ou_404(quarto_id, db)
+    hotel_id = quarto.hotel_id
 
     db.delete(quarto)
     db.commit()
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel_id})
 
     return None

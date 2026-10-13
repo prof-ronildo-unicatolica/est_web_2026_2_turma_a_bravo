@@ -10,10 +10,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_admin
-from app.core.database import get_db
+from app.core.database import get_db, get_mongo_db
 from app.models.cidade import Cidade
 from app.models.hotel import Hotel
 from app.schemas.hotel import HotelCreateSchema, HotelResponseSchema, HotelUpdateSchema
+from app.services.catalogo_hoteis import sincronizar_hoteis_por_ids
 
 router = APIRouter(prefix="/hoteis", tags=["Hoteis"])
 
@@ -41,9 +42,10 @@ def obter_hotel(hotel_id: uuid.UUID, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=HotelResponseSchema, status_code=status.HTTP_201_CREATED)
-def cadastrar_hotel(
+async def cadastrar_hotel(
     payload: HotelCreateSchema,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Cadastra um novo hotel. Restrito a administradores."""
@@ -63,15 +65,17 @@ def cadastrar_hotel(
     db.add(novo_hotel)
     db.commit()
     db.refresh(novo_hotel)
+    await sincronizar_hoteis_por_ids(db, mongo_db, {novo_hotel.id})
 
     return novo_hotel
 
 
 @router.put("/{hotel_id}", response_model=HotelResponseSchema)
-def editar_hotel(
+async def editar_hotel(
     hotel_id: uuid.UUID,
     payload: HotelUpdateSchema,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Edita um hotel existente (edicao parcial). Restrito a administradores."""
@@ -92,17 +96,20 @@ def editar_hotel(
 
     db.commit()
     db.refresh(hotel)
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel.id})
 
     return hotel
 
 
 @router.delete("/{hotel_id}", status_code=status.HTTP_204_NO_CONTENT)
-def excluir_hotel(
+async def excluir_hotel(
     hotel_id: uuid.UUID,
     db: Session = Depends(get_db),
+    mongo_db=Depends(get_mongo_db),
     _admin: dict = Depends(get_current_admin),
 ):
     """Exclui um hotel. Restrito a administradores."""
     hotel = _buscar_hotel_ou_404(hotel_id, db)
     db.delete(hotel)
     db.commit()
+    await sincronizar_hoteis_por_ids(db, mongo_db, {hotel_id})
