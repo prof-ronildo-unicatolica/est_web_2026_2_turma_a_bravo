@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import String
+from sqlalchemy import String, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -20,7 +20,10 @@ class Cidade(Base):
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     uf: Mapped[str] = mapped_column(String(2), nullable=False)
 
-    limite_territorial: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    limite_territorial: Mapped[dict | None] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"),
+        nullable=True,
+    )
 
     hoteis: Mapped[List["Hotel"]] = relationship(  # noqa: F821
         back_populates="cidade", cascade="all, delete-orphan"
