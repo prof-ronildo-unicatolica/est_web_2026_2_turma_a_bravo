@@ -1,3 +1,4 @@
+﻿
 from __future__ import annotations
 
 import uuid
@@ -13,6 +14,7 @@ from app.models.tutorial import Base
 
 class Hotel(Base):
     __tablename__ = "hoteis"
+
     __table_args__ = (
         CheckConstraint(
             "estrelas >= 1 AND estrelas <= 5",
