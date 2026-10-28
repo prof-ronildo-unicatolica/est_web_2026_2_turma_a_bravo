@@ -1,7 +1,7 @@
 """Adiciona limite territorial a Cidade
 
-Revision ID: 003
-Revises: 002
+Revision ID: 005
+Revises: 004
 """
 
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "003"
-down_revision: Union[str, None] = "002"
+revision: str = "005"
+down_revision: Union[str, None] = "004"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
