@@ -1,3 +1,4 @@
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,9 +12,11 @@ from app.api.v1.gestao import router as gestao_router
 from app.api.v1.health import router as health_router
 from app.api.v1.hotel import router as hotel_router
 from app.api.v1.quartos import router as quartos_router
+from app.api.v1.reservas import router as reservas_router
 from app.api.v1.tarifas_temporada import router as tarifas_temporada_router
 from app.api.v1.servicos_adicionais import router as servicos_adicionais_router
 from app.api.v1.sobre import router as sobre_router
+
 from app.core.config import settings
 from app.core.database import SessionLocal, get_mongo_db
 from app.core.seed_mongo import ensure_catalogo_hoteis, seed_mongo_users
@@ -25,8 +28,10 @@ async def lifespan(app: FastAPI):
     # Evento de inicializacao: Popular/Semear o MongoDB
     mongo_db = get_mongo_db()
     await ensure_catalogo_hoteis(mongo_db)
+
     with SessionLocal() as postgres_db:
         await sincronizar_catalogo_hoteis(postgres_db, mongo_db)
+
     await seed_mongo_users(mongo_db)
     yield
 
@@ -55,6 +60,10 @@ app.include_router(hotel_comodidades_router, prefix=settings.API_V1_STR)
 app.include_router(cidades_router, prefix=settings.API_V1_STR)
 app.include_router(hotel_router, prefix=settings.API_V1_STR)
 app.include_router(quartos_router, prefix=settings.API_V1_STR)
+
+# Sprint 6 - Reserva Assincrona
+app.include_router(reservas_router, prefix=settings.API_V1_STR)
+
 app.include_router(tarifas_temporada_router, prefix=settings.API_V1_STR)
 app.include_router(servicos_adicionais_router, prefix=settings.API_V1_STR)
 
