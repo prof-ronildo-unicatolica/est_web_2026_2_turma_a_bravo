@@ -272,3 +272,7 @@ def test_dentro_da_capacidade_passa():
 def test_entradas_invalidas(kw, msg):
     with pytest.raises(ReservaInvalidaError, match=msg):
         service.calcular_cotacao(entrada(**kw))
+
+def test_preco_negativo_rejeitado():
+    with pytest.raises(ReservaInvalidaError, match="preco_diaria"):
+        service.calcular_cotacao(entrada(preco_diaria=D("-50.00")))
