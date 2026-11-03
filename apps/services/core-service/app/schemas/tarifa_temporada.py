@@ -2,6 +2,7 @@
 import uuid
 from datetime import date
 from decimal import Decimal
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -25,9 +26,9 @@ class TarifaTemporadaUpdateSchema(BaseModel):
     nome: str | None = Field(default=None, min_length=1, max_length=100)
     data_inicio: date | None = None
     data_fim: date | None = None
-    percentual_ajuste: Decimal | None = Field(
-        default=None, ge=-100, le=999.99, decimal_places=2
-    )
+    percentual_ajuste: Annotated[
+        Decimal, Field(ge=-100, le=999.99, decimal_places=2)
+    ] | None = None
 
 
 class TarifaTemporadaResponseSchema(BaseModel):
