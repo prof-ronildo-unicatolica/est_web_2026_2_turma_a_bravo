@@ -13,7 +13,7 @@ export default function Perfil() {
 
       if (!token) {
         navigate('/login')
-        retunr
+        return
       }
       
       try {
