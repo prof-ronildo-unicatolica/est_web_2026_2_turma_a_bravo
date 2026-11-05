@@ -1,11 +1,10 @@
-version: "3.8"
-
+﻿
 services:
-  # ─── Bancos de Dados ────────────────────────────────────────────────────────
+  # Bancos de dados
   postgres:
     image: postgres:16-alpine
     container_name: hotel-postgres
-    restart: unless-stopped #always
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -39,6 +38,7 @@ services:
       start_period: 120s
 
   rabbitmq:
+    hostname: 94be4addbf81
     image: rabbitmq:3-management-alpine
     container_name: hotel-rabbitmq
     restart: unless-stopped
@@ -48,6 +48,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -55,7 +57,7 @@ services:
       retries: 5
       start_period: 120s
 
-  # ─── Backend (Core Service) ─────────────────────────────────────────────────
+  # Backend principal
   core-service:
     build:
       context: ./apps/services/core-service
@@ -89,6 +91,7 @@ services:
         poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000
       "
 
+  # Worker de auditoria
   audit-worker:
     build:
       context: ./apps/services/core-service
@@ -115,7 +118,32 @@ services:
         condition: service_healthy
     command: poetry run python -m app.workers.audit_worker
 
-  # ─── Frontend (React + Vite) ─────────────────────────────────────────────────
+  # Worker de recuperacao de mensagens - Sprint 6
+  outbox-worker:
+    build:
+      context: ./apps/services/core-service
+      dockerfile: Dockerfile
+    container_name: hotel-outbox-worker
+    restart: unless-stopped
+    environment:
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hotel_db_dev
+      - POSTGRES_PORT=5432
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - MONGODB_DB=hotel_mongo_dev
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - SECRET_KEY=change-me
+      - ALGORITHM=HS256
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: poetry run python -m app.workers.outbox_worker
+
+  # Frontend React + Vite
   frontend:
     build:
       context: ./apps/frontend
@@ -130,3 +158,5 @@ services:
 volumes:
   postgres_data:
   mongo_data:
+  rabbitmq_data:
+

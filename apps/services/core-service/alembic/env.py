@@ -1,35 +1,46 @@
+
+"""Configuração das migrações do banco de dados com Alembic."""
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
-# Importar modelos e configurações
+# Configurações da aplicação
 from app.core.config import settings
+
+# Modelos registrados no SQLAlchemy
 from app.models.cidade import Cidade  # noqa: F401
 from app.models.hotel import Hotel  # noqa: F401
 from app.models.tarifa_temporada import TarifaTemporada  # noqa: F401
 from app.models.servico_adicional import ServicoAdicional  # noqa: F401
+from app.models.reserva import Reserva  # noqa: F401
+from app.models.evento_outbox import EventoOutbox  # noqa: F401
 from app.models.tutorial import Base
 from app.models.usuario import Usuario  # noqa: F401
 
-# Objeto de configuração do Alembic
+# Configuração do Alembic
 config = context.config
 
-# Configurar o sistema de logs
+# Configuração dos logs
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Definir a URL do banco de dados dinamicamente a partir das Configurações
-config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
+# URL do PostgreSQL
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.SQLALCHEMY_DATABASE_URI,
+)
 
-# Objeto Metadata para geração automática de migrações
+# Metadados utilizados nas migrações
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """Executa migrações sem conexão direta com o banco."""
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -42,7 +53,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """Executa migrações com conexão ao banco."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -50,7 +61,10 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
