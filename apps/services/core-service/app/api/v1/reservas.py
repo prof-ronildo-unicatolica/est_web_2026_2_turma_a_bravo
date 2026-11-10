@@ -1,6 +1,7 @@
 
-"""Rotas de reservas - Sprint 6."""
+"""Rotas de reservas - Sprint 6 com Transactional Outbox."""
 
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
-from app.core.rabbitmq import publish_event
+from app.models.evento_outbox import EventoOutbox
 from app.models.quarto import Quarto
 from app.models.reserva import Reserva
 from app.models.tarifa_temporada import TarifaTemporada
@@ -19,6 +20,8 @@ from app.services.reserva_service import (
     ReservaService,
     TarifaPeriodo,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
 
@@ -33,7 +36,7 @@ async def solicitar_reserva(
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_current_user),
 ):
-    """Registra uma reserva pendente e solicita seu processamento."""
+    """Registra a reserva e o evento Outbox na mesma transacao."""
 
     quarto = (
         db.query(Quarto)
@@ -102,18 +105,6 @@ async def solicitar_reserva(
         status="Pendente",
     )
 
-    # Primeiro confirma a reserva no PostgreSQL.
-    try:
-        db.add(reserva)
-        db.commit()
-        db.refresh(reserva)
-    except Exception as erro:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Nao foi possivel registrar a reserva",
-        ) from erro
-
     evento = {
         "reserva_id": str(reserva.id),
         "quarto_id": str(reserva.quarto_id),
@@ -123,16 +114,37 @@ async def solicitar_reserva(
         "valor_total": str(reserva.valor_total),
     }
 
-    # Depois envia a solicitacao para processamento assincrono.
+    registro_outbox = EventoOutbox(
+        id=uuid.uuid4(),
+        reserva_id=reserva.id,
+        fila="solicitacoes-reserva",
+        payload=evento,
+        status="Pendente",
+        tentativas=0,
+    )
+
     try:
-        await publish_event("solicitacoes-reserva", evento)
+        # Insere primeiro a reserva no PostgreSQL.
+        db.add(reserva)
+        db.flush()
+
+        # Insere o evento Outbox na mesma transacao.
+        db.add(registro_outbox)
+
+        # Confirma os dois registros juntos.
+        db.commit()
+
+        db.refresh(reserva)
+
     except Exception as erro:
+        db.rollback()
+        logger.exception(
+            "Erro ao registrar reserva e evento Outbox"
+        )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=(
-                "Reserva registrada, mas nao foi possivel "
-                "enviar a solicitacao para processamento"
-            ),
+            detail="Nao foi possivel registrar a reserva",
         ) from erro
 
+    # O outbox-worker publicara a mensagem no RabbitMQ.
     return reserva
