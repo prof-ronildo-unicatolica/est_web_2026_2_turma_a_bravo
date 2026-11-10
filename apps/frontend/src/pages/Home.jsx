@@ -4,6 +4,7 @@ import DisciplinasList from '../components/DisciplinasList'
 import StacksTable from '../components/StacksTable'
 import VideoComponent from '../components/VideoComponent'
 import InteractiveExamples from '../components/InteractiveExamples'
+import HoteisRaw from '../components/HoteisRaw'
 
 export default function Home() {
   return (
@@ -18,6 +19,6 @@ export default function Home() {
       <ImageAndCarousel />
       <VideoComponent />
       <InteractiveExamples />
-    </div>
+      <HoteisRaw />    </div>
   )
 }
