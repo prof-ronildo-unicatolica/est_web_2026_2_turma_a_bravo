@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 import {
   calcularCotacao,
@@ -28,7 +28,7 @@ function rotuloAjuste(ajusteBp) {
 
 export default function Checkout() {
   const [searchParams] = useSearchParams()
-
+  const navigate = useNavigate()
   const [hoteis, setHoteis] = useState([])
   const [quartos, setQuartos] = useState([])
   const [tarifas, setTarifas] = useState([])
@@ -46,7 +46,8 @@ export default function Checkout() {
   const [horarioCheckout, setHorarioCheckout] = useState('')
   const [naoReembolsavel, setNaoReembolsavel] = useState(false)
   const [servicosEscolhidos, setServicosEscolhidos] = useState({})
-  const [assinaturaConfirmada, setAssinaturaConfirmada] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [erroEnvio, setErroEnvio] = useState('')
 
   useEffect(() => {
     async function carregar() {
@@ -130,20 +131,29 @@ export default function Checkout() {
 
   const totalServicos = calcularTotalServicos(servicosSelecionados, contextoServicos)
   const totalGeral = (cotacao ? cotacao.total : 0) + totalServicos
-
-  const assinatura = JSON.stringify([
-    hotelId,
-    quartoId,
-    checkIn,
-    checkOut,
-    adultos,
-    idadesCriancas,
-    horarioCheckin,
-    horarioCheckout,
-    naoReembolsavel,
-    servicosEscolhidos,
-  ])
-  const confirmado = assinaturaConfirmada === assinatura
+  async function confirmarReserva() {
+    setEnviando(true)
+    setErroEnvio('')
+    try {
+      const reserva = await apiFetch('/reservas', {
+        method: 'POST',
+        body: JSON.stringify({
+          quarto_id: quartoId,
+          data_entrada: checkIn,
+          data_saida: checkOut,
+          quantidade_adultos: Number(adultos),
+          idades_criancas: idades,
+          nao_reembolsavel: naoReembolsavel,
+          horario_checkin: horarioCheckin || null,
+          horario_checkout: horarioCheckout || null,
+        }),
+      })
+      navigate(`/reservas/${reserva.id}`)
+    } catch (e) {
+      setErroEnvio(e.message)
+      setEnviando(false)
+    }
+  }
 
   const hoje = new Date().toLocaleDateString('en-CA')
 
@@ -579,18 +589,20 @@ export default function Checkout() {
               <button
                 type="button"
                 className="btn btn-primary w-100 mt-3"
-                disabled={!cotacao}
-                onClick={() => setAssinaturaConfirmada(assinatura)}
+                disabled={!cotacao || enviando}
+                onClick={confirmarReserva}
               >
-                Confirmar reserva
+                {enviando ? 'Enviando...' : 'Confirmar reserva'}
               </button>
 
-              {confirmado && (
-                <div className="alert alert-success mt-3 mb-0">
-                  Resumo confirmado: {formatarMoeda(totalGeral)}. O envio da reserva ao servidor ainda
-                  não está implementado.
+              {totalServicos > 0 && (
+                <div className="alert alert-warning mt-3 mb-0 small">
+                  Os serviços adicionais ainda não são enviados ao servidor: o valor da reserva
+                  considera só as diárias e taxas.
                 </div>
               )}
+
+              {erroEnvio && <div className="alert alert-danger mt-3 mb-0">{erroEnvio}</div>}
             </div>
           </div>
         </div>

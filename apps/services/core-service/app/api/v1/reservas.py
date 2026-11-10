@@ -148,3 +148,17 @@ async def solicitar_reserva(
 
     # O outbox-worker publicara a mensagem no RabbitMQ.
     return reserva
+
+
+@router.get("/{reserva_id}", response_model=ReservaResponseSchema)
+def consultar_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    usuario: dict = Depends(get_current_user),
+):
+    reserva = db.query(Reserva).filter(Reserva.id == reserva_id).first()
+    if reserva is None or (
+        reserva.cliente_email != usuario["email"] and not usuario.get("is_admin")
+    ):
+        raise HTTPException(status_code=404, detail="Reserva nao encontrada")
+    return reserva
