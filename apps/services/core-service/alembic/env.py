@@ -10,6 +10,7 @@ from app.models.cidade import Cidade  # noqa: F401
 from app.models.hotel import Hotel  # noqa: F401
 from app.models.tarifa_temporada import TarifaTemporada  # noqa: F401
 from app.models.servico_adicional import ServicoAdicional  # noqa: F401
+from app.models.reserva import Reserva  # noqa: F401
 from app.models.tutorial import Base
 from app.models.usuario import Usuario  # noqa: F401
 

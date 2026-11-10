@@ -115,6 +115,31 @@ services:
         condition: service_healthy
     command: poetry run python -m app.workers.audit_worker
 
+  # ─── Worker (Processamento de Reservas) ──────────────────────────────────────
+  reservation-worker:
+    build:
+      context: ./apps/services/core-service
+      dockerfile: Dockerfile
+    container_name: hotel-reservation-worker
+    restart: unless-stopped
+    environment:
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=hotel_db_dev
+      - POSTGRES_PORT=5432
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - MONGODB_DB=hotel_mongo_dev
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - SECRET_KEY=change-me
+      - ALGORITHM=HS256
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: poetry run python -m app.workers.reservation_worker
+
   # ─── Frontend (React + Vite) ─────────────────────────────────────────────────
   frontend:
     build:
