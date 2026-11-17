@@ -19,6 +19,7 @@ from app.api.v1.sobre import router as sobre_router
 
 from app.core.config import settings
 from app.core.database import SessionLocal, get_mongo_db
+from app.core.exceptions import registrar_handlers
 from app.core.seed_mongo import ensure_catalogo_hoteis, seed_mongo_users
 from app.services.catalogo_hoteis import sincronizar_catalogo_hoteis
 
@@ -41,6 +42,9 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+# Sprint 7: formato unico de erro (detail + codigo) em toda a API.
+registrar_handlers(app)
 
 # Configuracao de CORS para permitir acesso do Frontend
 app.add_middleware(
