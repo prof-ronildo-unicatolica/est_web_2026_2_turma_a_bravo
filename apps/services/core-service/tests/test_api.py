@@ -65,4 +65,9 @@ def test_criar_disciplina_com_dados_invalidos_returns_422(client):
 def test_trigger_server_error_returns_500(client):
     response = client.get("/api/v1/debug/error")
     assert response.status_code == 500
-    assert response.text == "Internal Server Error"
+    # Sprint 7: o 500 agora e JSON padronizado e nao vaza detalhes internos.
+    assert response.json() == {
+        "detail": "Erro interno do servidor",
+        "codigo": "erro_interno",
+    }
+    assert "gateway" not in response.text
