@@ -9,6 +9,7 @@ import Perfil from './pages/Perfil'
 import ProtectedRoute from './components/ProtectedRoute'
 import Admin from './pages/Admin'
 import Checkout from './pages/Checkout'
+import MinhasReservas from './pages/MinhasReservas'
 
 export default function App() {
   return (
@@ -36,6 +37,9 @@ export default function App() {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/checkout">Reservar</Link>
+              </li>
+                <li className="nav-item">
+                <Link className="nav-link" to="/minhas-reservas">Minhas reservas</Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin</Link>
@@ -71,6 +75,7 @@ export default function App() {
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
               <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="/minhas-reservas" element={<ProtectedRoute><MinhasReservas /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Routes>
           </div>
