@@ -1,8 +1,9 @@
 
-"""Rotas de reservas - Sprint 6 com Transactional Outbox."""
+"""Rotas de reservas com Transactional Outbox e cancelamento."""
 
 import logging
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from app.models.quarto import Quarto
 from app.models.reserva import Reserva
 from app.models.tarifa_temporada import TarifaTemporada
 from app.schemas.reserva import ReservaCreateSchema, ReservaResponseSchema
+from app.services.cancelamento_service import efetivar_cancelamento
 from app.services.reserva_service import (
     EntradaCotacao,
     ReservaInvalidaError,
@@ -64,9 +66,7 @@ async def solicitar_reserva(
         TarifaPeriodo(
             data_inicio=tarifa.data_inicio,
             data_fim=tarifa.data_fim,
-            multiplicador=(
-                1 + tarifa.percentual_ajuste / 100
-            ),
+            multiplicador=(1 + tarifa.percentual_ajuste / 100),
         )
         for tarifa in tarifas
     ]
@@ -124,27 +124,129 @@ async def solicitar_reserva(
     )
 
     try:
-        # Insere primeiro a reserva no PostgreSQL.
         db.add(reserva)
         db.flush()
-
-        # Insere o evento Outbox na mesma transacao.
         db.add(registro_outbox)
-
-        # Confirma os dois registros juntos.
         db.commit()
-
         db.refresh(reserva)
 
     except Exception as erro:
         db.rollback()
-        logger.exception(
-            "Erro ao registrar reserva e evento Outbox"
-        )
+        logger.exception("Erro ao registrar reserva e evento Outbox")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Nao foi possivel registrar a reserva",
         ) from erro
 
-    # O outbox-worker publicara a mensagem no RabbitMQ.
     return reserva
+
+
+@router.post(
+    "/{reserva_id}/cancelar",
+    response_model=ReservaResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def cancelar_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    usuario: dict = Depends(get_current_user),
+):
+    """
+    Estrutura de cancelamento da Sprint 8.
+
+    A efetivacao depende da integracao das regras de
+    48 horas e multas, desenvolvidas pelo Integrante 2.
+    """
+
+    try:
+        # Bloqueia o quarto antes de atualizar a reserva,
+        # seguindo a ordem de bloqueio do reservation_worker.
+        reserva_consulta = (
+            db.query(Reserva)
+            .filter(
+                Reserva.id == reserva_id,
+                Reserva.cliente_email == usuario["email"],
+            )
+            .first()
+        )
+
+        if reserva_consulta is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reserva nao encontrada",
+            )
+
+        quarto = (
+            db.query(Quarto)
+            .filter(Quarto.id == reserva_consulta.quarto_id)
+            .with_for_update()
+            .first()
+        )
+
+        if quarto is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Quarto da reserva nao encontrado",
+            )
+
+        reserva = (
+            db.query(Reserva)
+            .filter(
+                Reserva.id == reserva_id,
+                Reserva.cliente_email == usuario["email"],
+            )
+            .with_for_update()
+            .first()
+        )
+
+        if reserva is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reserva nao encontrada",
+            )
+
+        if reserva.status == "Cancelada":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Esta reserva ja esta cancelada",
+            )
+
+        if reserva.status not in ("Pendente", "Confirmada"):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="O status atual nao permite cancelamento",
+            )
+
+        if reserva.data_entrada <= datetime.now(timezone.utc).date():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Nao e possivel cancelar reserva iniciada ou encerrada",
+            )
+
+        # Ponto de integracao com o Integrante 2.
+        # A politica deve calcular multa e reembolso antes
+        # da alteracao do status e do registro de auditoria.
+        #
+        # Nao efetivar cancelamentos sem essa validacao.
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=(
+                "Cancelamento aguardando integracao das "
+                "regras de 48 horas e multas"
+            ),
+        )
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception as erro:
+        db.rollback()
+        logger.exception(
+            "Erro ao processar cancelamento da reserva %s",
+            reserva_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Nao foi possivel processar o cancelamento",
+        ) from erro
