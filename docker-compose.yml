@@ -140,6 +140,7 @@ services:
         condition: service_healthy
     command: poetry run python -m app.workers.outbox_worker
 
+  # Worker de processamento de reservas - Sprint 6
   reservation-worker:
     build:
       context: ./apps/services/core-service
@@ -162,7 +163,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    command: poetry run python -m app.workers.reservation_worker  
+    command: poetry run python -m app.workers.reservation_worker
+
 
   # Frontend React + Vite
   frontend:
