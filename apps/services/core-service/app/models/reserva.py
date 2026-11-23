@@ -5,7 +5,7 @@ import uuid
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.tutorial import Base
@@ -64,7 +64,29 @@ class Reserva(Base):
         nullable=False,
         default="Pendente",
     )
+    nao_reembolsavel: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
 
+    valor_diaria: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0.00"),
+        server_default="0",
+    )
+
+    data_cancelamento: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    valor_multa: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 2),
+        nullable=True,
+    )
     criado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

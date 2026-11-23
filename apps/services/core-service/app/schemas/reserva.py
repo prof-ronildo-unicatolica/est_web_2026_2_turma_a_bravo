@@ -50,3 +50,19 @@ class ReservaResponseSchema(BaseModel):
     valor_total: Decimal
     status: str
     criado_em: datetime
+
+class MultaCancelamentoSchema(BaseModel):
+    reserva_id: uuid.UUID
+    nao_reembolsavel: bool
+    dentro_do_prazo: bool
+    prazo_limite: datetime
+    valor_total: Decimal
+    valor_multa: Decimal
+    percentual_multa: Decimal
+    valor_reembolso: Decimal
+    motivo: str
+
+
+class CancelamentoResponseSchema(MultaCancelamentoSchema):
+    status: str
+    data_cancelamento: datetime
