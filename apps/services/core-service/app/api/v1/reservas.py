@@ -161,15 +161,62 @@ async def solicitar_reserva(
     return reserva
 
 
+<<<<<<< HEAD
+@router.get(
+    "",
+    response_model=list[ReservaResponseSchema],
+)
+def listar_reservas(
+    db: Session = Depends(get_db),
+    usuario: dict = Depends(get_current_user),
+):
+    """Lista somente as reservas do usuario autenticado."""
+
+    reservas = (
+        db.query(Reserva)
+        .filter(Reserva.cliente_email == usuario["email"])
+        .order_by(Reserva.criado_em.desc())
+        .all()
+    )
+
+    return reservas
+
+
+@router.get(
+    "/{reserva_id}",
+    response_model=ReservaResponseSchema,
+)
+=======
 @router.get("/{reserva_id}", response_model=ReservaResponseSchema)
+>>>>>>> origin/develop
 def consultar_reserva(
     reserva_id: uuid.UUID,
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_current_user),
 ):
+<<<<<<< HEAD
+    """Consulta uma reserva pertencente ao usuario autenticado."""
+
+    reserva = (
+        db.query(Reserva)
+        .filter(
+            Reserva.id == reserva_id,
+            Reserva.cliente_email == usuario["email"],
+        )
+        .first()
+    )
+
+    if reserva is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reserva nao encontrada",
+        )
+
+=======
     reserva = db.query(Reserva).filter(Reserva.id == reserva_id).first()
     if reserva is None or (
         reserva.cliente_email != usuario["email"] and not usuario.get("is_admin")
     ):
         raise HTTPException(status_code=404, detail="Reserva nao encontrada")
+>>>>>>> origin/develop
     return reserva
