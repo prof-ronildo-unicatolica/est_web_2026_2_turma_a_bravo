@@ -23,7 +23,22 @@ async function apiFetch(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(`Erro na API: ${response.status}`)
+    // Tenta ler a mensagem que o backend enviou (campo "detail").
+    let mensagem = ''
+    try {
+      const corpo = await response.json()
+      if (typeof corpo.detail === 'string') {
+        mensagem = corpo.detail
+      } else if (Array.isArray(corpo.detail)) {
+        mensagem = corpo.detail.map((item) => item.msg).join('; ')
+      }
+    } catch {
+      // resposta sem JSON: usa a mensagem padrao abaixo
+    }
+
+    const erro = new Error(mensagem || `Erro na API: ${response.status}`)
+    erro.status = response.status
+    throw erro
   }
 
   return response.json()

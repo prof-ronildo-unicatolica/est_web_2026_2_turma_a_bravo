@@ -1,5 +1,5 @@
 
-"""Rotas de reservas com Transactional Outbox e cancelamento."""
+"""Rotas de reservas - Sprint 6 com Transactional Outbox."""
 
 import logging
 import uuid
@@ -22,6 +22,7 @@ from app.services.reserva_service import (
     ReservaService,
     TarifaPeriodo,
 )
+from app.services.validacao_reserva import validar_reserva
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,16 @@ async def solicitar_reserva(
             detail="Quarto nao encontrado",
         )
 
+    # Sprint 7: periodo, capacidade e disponibilidade (422/409 com codigo).
+    validar_reserva(
+        db,
+        quarto,
+        data_entrada=payload.data_entrada,
+        data_saida=payload.data_saida,
+        quantidade_adultos=payload.quantidade_adultos,
+        idades_criancas=payload.idades_criancas,
+    )
+
     tarifas = (
         db.query(TarifaTemporada)
         .filter(
@@ -66,7 +77,9 @@ async def solicitar_reserva(
         TarifaPeriodo(
             data_inicio=tarifa.data_inicio,
             data_fim=tarifa.data_fim,
-            multiplicador=(1 + tarifa.percentual_ajuste / 100),
+            multiplicador=(
+                1 + tarifa.percentual_ajuste / 100
+            ),
         )
         for tarifa in tarifas
     ]
@@ -124,20 +137,43 @@ async def solicitar_reserva(
     )
 
     try:
+        # Insere primeiro a reserva no PostgreSQL.
         db.add(reserva)
         db.flush()
+
+        # Insere o evento Outbox na mesma transacao.
         db.add(registro_outbox)
+
+        # Confirma os dois registros juntos.
         db.commit()
+
         db.refresh(reserva)
 
     except Exception as erro:
         db.rollback()
-        logger.exception("Erro ao registrar reserva e evento Outbox")
+        logger.exception(
+            "Erro ao registrar reserva e evento Outbox"
+        )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Nao foi possivel registrar a reserva",
         ) from erro
 
+    # O outbox-worker publicara a mensagem no RabbitMQ.
+    return reserva
+
+
+@router.get("/{reserva_id}", response_model=ReservaResponseSchema)
+def consultar_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    usuario: dict = Depends(get_current_user),
+):
+    reserva = db.query(Reserva).filter(Reserva.id == reserva_id).first()
+    if reserva is None or (
+        reserva.cliente_email != usuario["email"] and not usuario.get("is_admin")
+    ):
+        raise HTTPException(status_code=404, detail="Reserva nao encontrada")
     return reserva
 
 
