@@ -8,6 +8,8 @@ import Cadastro from './pages/Cadastro'
 import Perfil from './pages/Perfil'
 import ProtectedRoute from './components/ProtectedRoute'
 import Admin from './pages/Admin'
+import Checkout from './pages/Checkout'
+import ReservaStatus from './pages/ReservaStatus'
 
 export default function App() {
   return (
@@ -32,6 +34,9 @@ export default function App() {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/cidades">Cidades</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/checkout">Reservar</Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin</Link>
@@ -66,6 +71,8 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
               <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+              <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="/reservas/:id" element={<ProtectedRoute><ReservaStatus /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Routes>
           </div>

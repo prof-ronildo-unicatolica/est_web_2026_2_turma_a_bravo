@@ -21,6 +21,11 @@ export default function Sidebar() {
           </Link>
         </li>
         <li className="nav-item mb-2">
+          <Link to="/checkout" className="nav-link text-white">
+            Reservar
+          </Link>
+        </li>
+        <li className="nav-item mb-2">
           <Link to="/perfil" className="nav-link text-white">
             Perfil
           </Link>

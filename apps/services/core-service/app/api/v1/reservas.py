@@ -20,6 +20,7 @@ from app.services.reserva_service import (
     ReservaService,
     TarifaPeriodo,
 )
+from app.services.validacao_reserva import validar_reserva
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,16 @@ async def solicitar_reserva(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Quarto nao encontrado",
         )
+
+    # Sprint 7: periodo, capacidade e disponibilidade (422/409 com codigo).
+    validar_reserva(
+        db,
+        quarto,
+        data_entrada=payload.data_entrada,
+        data_saida=payload.data_saida,
+        quantidade_adultos=payload.quantidade_adultos,
+        idades_criancas=payload.idades_criancas,
+    )
 
     tarifas = (
         db.query(TarifaTemporada)
@@ -150,6 +161,7 @@ async def solicitar_reserva(
     return reserva
 
 
+<<<<<<< HEAD
 @router.get(
     "",
     response_model=list[ReservaResponseSchema],
@@ -174,11 +186,15 @@ def listar_reservas(
     "/{reserva_id}",
     response_model=ReservaResponseSchema,
 )
+=======
+@router.get("/{reserva_id}", response_model=ReservaResponseSchema)
+>>>>>>> origin/develop
 def consultar_reserva(
     reserva_id: uuid.UUID,
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_current_user),
 ):
+<<<<<<< HEAD
     """Consulta uma reserva pertencente ao usuario autenticado."""
 
     reserva = (
@@ -196,4 +212,11 @@ def consultar_reserva(
             detail="Reserva nao encontrada",
         )
 
+=======
+    reserva = db.query(Reserva).filter(Reserva.id == reserva_id).first()
+    if reserva is None or (
+        reserva.cliente_email != usuario["email"] and not usuario.get("is_admin")
+    ):
+        raise HTTPException(status_code=404, detail="Reserva nao encontrada")
+>>>>>>> origin/develop
     return reserva
