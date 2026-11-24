@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Admin from './pages/Admin'
 import Checkout from './pages/Checkout'
 import ReservaStatus from './pages/ReservaStatus'
+import MinhasReservas from './pages/MinhasReservas'
 
 export default function App() {
   return (
@@ -37,6 +38,9 @@ export default function App() {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/checkout">Reservar</Link>
+              </li>
+                <li className="nav-item">
+                <Link className="nav-link" to="/minhas-reservas">Minhas reservas</Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/admin">Admin</Link>
@@ -73,6 +77,7 @@ export default function App() {
               <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
               <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
               <Route path="/reservas/:id" element={<ProtectedRoute><ReservaStatus /></ProtectedRoute>} />
+              <Route path="/minhas-reservas" element={<ProtectedRoute><MinhasReservas /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
             </Routes>
           </div>
