@@ -52,8 +52,11 @@ def criar_cidade(payload: CidadeCreateSchema, db: Session = Depends(get_db)):
         status=payload.status or "Ativa",
     )
 
-
-@router.put("/cidades/{cidade_id}", response_model=CidadeResponseSchema)
+@router.put(
+    "/cidades/{cidade_id}",
+    response_model=CidadeResponseSchema,
+    responses={404: {"description": "Cidade não encontrada"}},
+)
 async def atualizar_cidade(
     cidade_id: uuid.UUID,
     payload: CidadeUpdateSchema,
@@ -80,8 +83,11 @@ async def atualizar_cidade(
         status=payload.status or ("Ativa" if cidade.hoteis else "Inativa"),
     )
 
-
-@router.delete("/cidades/{cidade_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/cidades/{cidade_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "Cidade não encontrada"}},
+)
 async def excluir_cidade(
     cidade_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -114,7 +120,6 @@ def listar_hoteis(db: Session = Depends(get_db)):
         )
         for hotel in hoteis
     ]
-
 
 @router.post("/hoteis", response_model=HotelResponseSchema, status_code=status.HTTP_201_CREATED)
 async def criar_hotel(
@@ -149,8 +154,11 @@ async def criar_hotel(
         diaria=hotel.diaria or "R$ 0",
     )
 
-
-@router.put("/hoteis/{hotel_id}", response_model=HotelResponseSchema)
+@router.put(
+    "/hoteis/{hotel_id}",
+    response_model=HotelResponseSchema,
+    responses={404: {"description": "Hotel ou cidade não encontrados"}},
+)
 async def atualizar_hotel(
     hotel_id: uuid.UUID,
     payload: HotelUpdateSchema,
@@ -186,8 +194,11 @@ async def atualizar_hotel(
         diaria=hotel.diaria or "R$ 0",
     )
 
-
-@router.delete("/hoteis/{hotel_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/hoteis/{hotel_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "Hotel não encontrado"}},
+)
 async def excluir_hotel(
     hotel_id: uuid.UUID,
     db: Session = Depends(get_db),
